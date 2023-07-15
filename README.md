@@ -82,8 +82,13 @@ Once you have completed the setup steps, you can run the application by followin
      
 3. Execute the compiled code.
 
-Do: a. CD StreamHandler
-    b. sbt package && spark-submit --class StreamHandler --master 'local[*]' --packages "org.apache.spark:spark-sql-kafka-0-10_2.12:3.4.1,com.datastax.spark:spark-cassandra-connector_2.12:3.3.0,com.datastax.cassandra:cassandra-driver-core:3.11.3" ./target/scala-2.12/stream-handler_2.12-1.0.jar
+Do: ```shell
+    CD StreamHandler
+    ```
+    
+    ```shell
+    sbt package && spark-submit --class StreamHandler --master 'local[*]' --packages "org.apache.spark:spark-sql-kafka-0-10_2.12:3.4.1,com.datastax.spark:spark-cassandra-connector_2.12:3.3.0,com.datastax.cassandra:cassandra-driver-core:3.11.3" ./target/scala-2.12/stream-handler_2.12-1.0.jar
+    ```
 
 4. The application will start consuming data from the Kafka topic and writing it to Cassandra. You will see log messages indicating the progress.
 
@@ -113,7 +118,9 @@ kafka-topics --create --bootstrap-server localhost:9092 --replication-factor 1 -
 ## Aggregating on raw data to get Final Output (Cassandra -> Final Output)
 
 Run:
+```shell
 sbt package && spark-submit --class TransformHandler --master 'local[*]' --packages "org.apache.spark:spark-sql-kafka-0-10_2.12:3.4.1,com.datastax.spark:spark-cassandra-connector_2.12:3.3.0,com.datastax.cassandra:cassandra-driver-core:3.11.3" ./target/scala-2.12/stream-handler_2.12-1.0.jar
+```
 
 ## Additional Notes
 
