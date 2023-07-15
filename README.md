@@ -13,11 +13,7 @@ Before running this application, make sure you have the following:
   ```shell
   brew install apache-spark
   ```
-
-  **Manual Installation**:
-  - Download Apache Spark from the official website: [https://spark.apache.org/downloads.html](https://spark.apache.org/downloads.html)
-  - Extract the downloaded archive and follow the installation instructions in the provided documentation.
-
+  
 - Apache Cassandra installed and running. You can install Apache Cassandra using Homebrew (macOS) or manually.
 
   **Homebrew (macOS)**:
@@ -25,20 +21,12 @@ Before running this application, make sure you have the following:
   brew install cassandra
   ```
 
-  **Manual Installation**:
-  - Download Apache Cassandra from the official website: [http://cassandra.apache.org/download](http://cassandra.apache.org/download)
-  - Follow the installation instructions provided in the downloaded documentation.
-
 - Kafka broker running with the specified bootstrap servers and the topic `app_events` available. You can install Kafka using Homebrew (macOS) or manually.
 
   **Homebrew (macOS)**:
   ```shell
   brew install kafka
   ```
-
-  **Manual Installation**:
-  - Download Kafka from the official website: [https://kafka.apache.org/downloads](https://kafka.apache.org/downloads)
-  - Extract the downloaded archive and follow the installation instructions in the provided documentation.
 
 ## Setup
 
@@ -79,9 +67,6 @@ Once you have completed the setup steps, you can run the application by followin
    brew services start cassandra
    ```
 
-   **Manual Installation**:
-   - Start Cassandra using the appropriate command for your installation.
-
 2. Launch the Kafka broker with the specified bootstrap servers and make sure the `app_events` topic exists.
 
    **Homebrew (macOS)**:
@@ -94,10 +79,7 @@ Once you have completed the setup steps, you can run the application by followin
      ```shell
      brew services start kafka
      ```
-
-   **Manual Installation**:
-   - Start ZooKeeper and Kafka using the appropriate commands for your installation.
-
+     
 3. Execute the compiled code.
 
 Do: a. CD StreamHandler
@@ -143,26 +125,26 @@ sbt package && spark-submit --class TransformHandler --master 'local[*]' --packa
 
 
 ## Screenshots:
+
+1. Generating events and pushing to kafka
 <img width="1177" alt="Screenshot 2023-07-15 at 18 57 59" src="https://github.com/suryansh314/realTimeUserEvents/assets/69847943/5481b8c3-ab1e-41a1-a633-562dbc043a4a">
 
-1. Event generator and pushes to kafka
 
+2. Spark-Submit
 <img width="1440" alt="Screenshot 2023-07-15 at 19 00 46" src="https://github.com/suryansh314/realTimeUserEvents/assets/69847943/51509b6d-62de-4f22-aba9-95f156e1c51b">
+
+3. Spark UI
 <img width="1403" alt="Screenshot 2023-07-15 at 19 00 30" src="https://github.com/suryansh314/realTimeUserEvents/assets/69847943/de07cd6d-8c1a-4295-862a-ab25a4164541">
 
-2. Spark submit and UI
-
+4. Cassandra table records
 <img width="1179" alt="Screenshot 2023-07-15 at 19 02 49" src="https://github.com/suryansh314/realTimeUserEvents/assets/69847943/d62ff6ff-ef7d-443c-8339-c35ad7efa39d">
 
-3. Cassandra table records
-
+5. Transform handler spark submit
 <img width="1388" alt="Screenshot 2023-07-15 at 19 04 05" src="https://github.com/suryansh314/realTimeUserEvents/assets/69847943/a8924438-e5d5-49dc-b886-807a6426781d">
 
-4. Transform handler spark submit
-
+6. Final aggregated CSV generated in spark-shell
 <img width="1176" alt="Screenshot 2023-07-15 at 19 05 56" src="https://github.com/suryansh314/realTimeUserEvents/assets/69847943/bcc7deee-d461-48b3-bff2-825a47776fbc">
 
-5. Final aggregated CSV generated
 
 
 
