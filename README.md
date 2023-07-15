@@ -80,9 +80,9 @@ Once you have completed the setup steps, you can run the application by followin
      brew services start kafka
      ```
      
-3. Execute the compiled code.
-
-Do: ```shell
+3. Execute the compiled code
+   
+    ```shell
     CD StreamHandler
     ```
     
