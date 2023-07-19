@@ -91,10 +91,9 @@ def simulate_user_journey(user):
         if events:
             generate_events(user, city, events)
 
-        # Delay before starting the next user journey (adjust as needed)
+        # Delay before starting the next user journey
         time.sleep(1)
 
-# Main program
 if __name__ == '__main__':
     num_users = int(input("Enter the number of users: "))
 
