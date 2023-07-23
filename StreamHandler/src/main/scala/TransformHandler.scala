@@ -26,7 +26,6 @@ object TransformHandler {
     val stepPercntAgg = df
       .withColumn("rn",expr("ROW_NUMBER() OVER (PARTITION BY userid ORDER BY timestamp DESC) AS rn"))
       .filter("rn=1")
-      .drop("rn")
       .groupBy("step")
       .agg(round(countDistinct("userid")*100/lit(totalDistinctUserIds),2).alias("cnt_prcnt"))
       .cache()
