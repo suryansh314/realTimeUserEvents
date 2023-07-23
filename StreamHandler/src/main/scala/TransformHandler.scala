@@ -18,12 +18,21 @@ object TransformHandler {
       .option("keyspace", "events")  //Cassandra keyspace
       .load()
 
-    // Perform aggregation stage wise
-    val stepPercntAgg = df.groupBy("step")
-      .count()
-      .withColumn("percentage", expr("count * 100.0 / sum(count) over ()"))
+    df.write.mode(SaveMode.Overwrite).option("header", "true").csv("/Users/suryanshsingh/df.csv")
 
-    // Write the result to a CSV file
+    val totalDistinctUserIds = df.agg(countDistinct("userid")).head.getLong(0)
+
+    // aggregation stage wise
+    val stepPercntAgg = df
+      .withColumn("rn",expr("ROW_NUMBER() OVER (PARTITION BY userid ORDER BY timestamp DESC) AS rn"))
+      .filter("rn=1")
+      .drop("rn")
+      .groupBy("step")
+      .agg(round(countDistinct("userid")*100/lit(totalDistinctUserIds),2).alias("cnt_prcnt"))
+      .cache()
+
+    stepPercntAgg.show(100,0)
+
     stepPercntAgg
       .write
       .mode(SaveMode.Overwrite)
@@ -32,21 +41,16 @@ object TransformHandler {
 
     //city wise aggregation
     val cityUserCountDF = df.groupBy("city_name")
-      .agg(count("userid").alias("user_count"))
+      .agg(countDistinct("userid").alias("user_count")).cache()
 
-    val totalUserCount = df.select("userid").count()
+    cityUserCountDF.show(100,false)
 
-    val cityUserWiseDF = cityUserCountDF.withColumn("percentage", col("user_count") * 100.0 / totalUserCount)
-
-    cityUserWiseDF.show(false)
-
-    cityUserWiseDF
+    cityUserCountDF
       .write
       .mode(SaveMode.Overwrite)
       .option("header", "true")
       .csv("/Users/suryanshsingh/cityUserWiseAgg.csv")
 
-    // Stop the Spark session
     spark.stop()
   }
 }
