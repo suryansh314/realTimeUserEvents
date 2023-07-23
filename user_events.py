@@ -5,11 +5,9 @@ import random
 import time
 from threading import Thread
 
-# Kafka topic and bootstrap servers
 KAFKA_TOPIC = 'app_events'
 KAFKA_BOOTSTRAP_SERVERS = 'localhost:9092'
 
-# Different steps of the user journey (funnel) with respective frequencies
 FUNNEL_STEPS = [
     {'step': 'access_application', 'frequency': 0.8},
     {'step': 'click_banner', 'frequency': 0.6},
@@ -42,65 +40,70 @@ city_mapping = {
     20: 'Vadodara'
 }
 
-# Batch size for events
 BATCH_SIZE = 10
 
 NUM_CITIES = 20
 
-# Function to generate events for a user in batches
+def on_send_success(record_metadata):
+    print(f'Message sent successfully: {record_metadata.topic} - '
+          f'partition {record_metadata.partition} - offset {record_metadata.offset}')
+
+def on_send_error(excp):
+    print(f'Error while sending message: {excp}')
+
 def generate_events(user, city, events):
     city_name = city_mapping.get(city, 'Unknown City')
 
     msgs = [f'{time.time()},{user},{city_name},{event}' for event in events]
 
-    # Send events to Kafka
     for msg in msgs:
-        producer.send(KAFKA_TOPIC, bytes(msg, encoding='utf8'))
-        print(f'Sending event to Kafka: {msg}')
+        try:
+            producer.send(KAFKA_TOPIC, bytes(msg, encoding='utf8')).add_callback(on_send_success).add_errback(on_send_error)
+            print(f'Sent {len(events)} events for User {user}')
+        except Exception as e:
+            print(f'Error sending event to Kafka: {e}')
 
-    print(f'Sent {len(events)} events for User {user}')
-
-# Simulate the user journey
 def simulate_user_journey(user):
-    # Assign a fixed random city ID to the user
     city = random.randint(1, NUM_CITIES)
+    dropped_out = False  # Flag to track dropout
 
-    while True:
+    while not dropped_out:
         events = []
 
         for funnel_step in FUNNEL_STEPS:
             step = funnel_step['step']
             frequency = funnel_step['frequency']
 
-            # Check if user drops out at this step based on the frequency
-            if random.random() > frequency:
-                # User drops out, generate dropout event and break the loop
+            if random.random() > 0.9:
                 events.append(f'dropout at {step}')
                 print(f'User {user} dropped out at step: {step}')
+                dropped_out = True
                 break
 
-            # Generate event for the selected step
             events.append(step)
 
-            # Check if the batch size is reached, then send the events in a batch
+            # if the batch size is reached then send the events in a batch
             if len(events) == BATCH_SIZE:
                 generate_events(user, city, events)
                 events = []
 
-        # Check if any remaining events in the batch
+        # if any remaining events in the batch
         if events:
             generate_events(user, city, events)
 
         # Delay before starting the next user journey
-        time.sleep(1)
+        time.sleep(5)
 
 if __name__ == '__main__':
     num_users = int(input("Enter the number of users: "))
 
-    # Set up the Kafka producer
-    producer = KafkaProducer(bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS)
+    producer = KafkaProducer(
+        bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
+        acks='all',
+        retries=3,
+        retry_backoff_ms=100
+    )
 
-    # Create and start a thread for each user
     threads = []
     for user in range(num_users):
         t = Thread(target=simulate_user_journey, args=(user,))
@@ -108,12 +111,9 @@ if __name__ == '__main__':
         t.start()
 
     try:
-        # Keep the main program running until interrupted by ^C
         while True:
             time.sleep(1)
     except KeyboardInterrupt:
         # Interrupted by ^C, stop the threads and exit
         for t in threads:
             t.join()
-
-
