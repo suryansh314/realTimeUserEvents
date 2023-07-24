@@ -8,7 +8,7 @@ object TransformHandler {
     val spark = SparkSession.builder()
       .appName("CassandraToCSVJob")
       .master("local[*]")
-      .config("spark.cassandra.connection.host", "localhost")  // Replace with your Cassandra host
+      .config("spark.cassandra.connection.host", "localhost")  
       .getOrCreate()
 
     // Read data from Cassandra table
